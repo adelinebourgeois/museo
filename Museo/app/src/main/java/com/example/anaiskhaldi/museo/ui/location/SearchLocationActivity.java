@@ -3,6 +3,7 @@ package com.example.anaiskhaldi.museo.ui.location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.EditText;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
@@ -19,6 +20,10 @@ import com.example.anaiskhaldi.museo.utils.Constant;
 import com.example.anaiskhaldi.museo.utils.FastDialog;
 import com.example.anaiskhaldi.museo.utils.Network;
 import com.example.anaiskhaldi.museo.utils.Preference;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -34,6 +39,8 @@ import static com.example.anaiskhaldi.museo.R.*;
 
 public class SearchLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private EditText editTextPlaces;
+
     private static final String TAG = "dataGetMap";
     private static final String TAG2 = "Preference";
     private GoogleMap mMap;
@@ -42,10 +49,29 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(layout.activity_search_location);
+
+        editTextPlaces = (EditText) findViewById(id.editTextPlaces);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(id.map);
         mapFragment.getMapAsync(this);
+
+        // L'écouteur PlaceSelectionListener se charge de renvoyer un lieu en réponse à la sélection de l'utilisateur
+        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(id.place_autocomplete_fragment);
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                // TODO: Get info about the selected place.
+                Log.i(TAG, "Place: " + place.getName());
+            }
+
+            @Override
+            public void onError(Status status) {
+                // TODO: Handle the error.
+                Log.i(TAG, "An error occurred: " + status);
+            }
+        });
+
     }
 
     /**
