@@ -62,6 +62,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
     }
 
     public void getData() {
+
         if (Network.isNetworkAvailable(SearchLocationActivity.this)) {
 
             // Instantiate the RequestQueue.
