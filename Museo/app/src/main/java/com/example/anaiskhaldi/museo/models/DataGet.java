@@ -1,5 +1,7 @@
 package com.example.anaiskhaldi.museo.models;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 /**
@@ -8,8 +10,12 @@ import java.util.List;
 
 public class DataGet {
 
-    public String status;
-    public String message;
-    public List<MuseumGetFieldsData> fields;
-    public List<MuseumGetGeometryData> geometry;
+    public List<MuseumGetResults> results;
+
+    @Override
+    public String toString() {
+        return "DataGet{" +
+                "results=" + results +
+                '}';
+    }
 }
