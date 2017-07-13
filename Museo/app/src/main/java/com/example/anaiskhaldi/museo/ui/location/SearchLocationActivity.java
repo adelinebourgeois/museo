@@ -13,9 +13,12 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.anaiskhaldi.museo.R;
 import com.example.anaiskhaldi.museo.models.DataGet;
+import com.example.anaiskhaldi.museo.models.MuseumGetGeometryData;
+import com.example.anaiskhaldi.museo.models.MuseumGetResults;
 import com.example.anaiskhaldi.museo.utils.Constant;
 import com.example.anaiskhaldi.museo.utils.FastDialog;
 import com.example.anaiskhaldi.museo.utils.Network;
+import com.example.anaiskhaldi.museo.utils.Preference;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,11 +27,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+
+import static android.R.attr.data;
 import static com.example.anaiskhaldi.museo.R.*;
 
 public class SearchLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String TAG = "dataGetMap";
+    private static final String TAG2 = "Preference";
     private GoogleMap mMap;
 
     @Override
@@ -41,12 +48,10 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         mapFragment.getMapAsync(this);
     }
 
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
      * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -55,8 +60,11 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        getData();
+
         // Add a marker in Sydney and move the camera
-        LatLng paris = new LatLng(48.864716, 2.349014);
+
+        LatLng paris = new LatLng(Preference.getLatitude(SearchLocationActivity.this), Preference.getLongitude(SearchLocationActivity.this));
         mMap.addMarker(new MarkerOptions().position(paris).title("Marker in Paris"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(paris, 12));
     }
@@ -77,18 +85,29 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                             Gson gson = new Gson(); //une instance d'un objet Gson (permet de décoder le fichier JSON qui est renvoyé par le serveur).
 
                             final DataGet dataGet = gson.fromJson(response, DataGet.class); //nous lançons le décodage (La lecture du fichier JSON renvoyé par le web service )
-                            //Log.e(TAG, dataGet.geometry);
 
+                            for(int i = 0; i< dataGet.results.size(); i++) {
+                                MuseumGetGeometryData datas = dataGet.results.get(i).geometry;
+                                Log.d(TAG, "geometrylat "+ datas.location.lat);
+                                Log.d(TAG, "geometrylong "+ datas.location.lng);
+                                Preference.setLatitude(SearchLocationActivity.this, datas.location.lat);;
+                                Preference.setLongitude(SearchLocationActivity.this, datas.location.lng);
+                            }
                         }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
 
-                    FastDialog.showDialog(SearchLocationActivity.this,
-                            FastDialog.SIMPLE_DIALOG,
-                            "Probleme");
-                }
-            });
+                            String message = new String(error.networkResponse.data);
+
+
+                            FastDialog.showDialog(SearchLocationActivity.this,
+                                    FastDialog.SIMPLE_DIALOG,
+                                    "Probleme "+message);
+                        }
+                    }
+            );
 
             // Add the request to the RequestQueue.
             queue.add(stringRequest);

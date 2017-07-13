@@ -8,19 +8,28 @@ import android.preference.PreferenceManager;
 
 public class Preference {
 
-    private static final String PREF_COORDINATE = "coordonnee";
+    private static final String PREF_LATITUDE = "lat";
+    private static final String PREF_LONGITUDE = "lng";
 
     private static SharedPreferences get(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
 
-    /*public static int[] getCoordonnee(Context context) {
-        //return get(context).get(PREF_COORDINATE, 0);
+    public static float getLatitude(Context context) {
+        return get(context).getFloat(PREF_LATITUDE, 0);
     }
 
-    public static void setCoordonnee(Context context, int[] coordonnee) {
-        get(context).edit().putInt(PREF_COORDINATE, coordonnee).commit();
-    }*/
+    public static void setLatitude(Context context, float coordonnee) {
+        get(context).edit().putFloat(PREF_LATITUDE, coordonnee).commit();
+    }
+
+    public static float getLongitude(Context context) {
+        return get(context).getFloat(PREF_LONGITUDE, 0);
+    }
+
+    public static void setLongitude(Context context, float coordonnee) {
+        get(context).edit().putFloat(PREF_LONGITUDE, coordonnee).commit();
+    }
 
 }
