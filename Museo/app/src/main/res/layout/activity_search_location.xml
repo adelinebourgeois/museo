@@ -2,15 +2,9 @@
 <android.support.design.widget.CoordinatorLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <include
-        android:id="@+id/relativeLayout1"
-        layout="@layout/search_location_content" />
-
     <fragment
-        android:layout_below="@+id/relativeLayout1"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -19,6 +13,41 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.example.anaiskhaldi.museo.ui.location.SearchLocationActivity" />
+
+
+    <ImageView
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="end|top"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/splashscreen_marker_red"
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+
+    <ImageView
+        android:id="@+id/imageViewMenu"
+        android:layout_marginTop="25dp"
+        android:layout_marginLeft="15dp"
+        android:layout_gravity="top"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/menu_icon_blue"
+        xmlns:android="http://schemas.android.com/apk/res/android" />
+
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@color/colorWhite"
+        android:backgroundTint="@color/colorWhite"
+        android:textColor="@color/colorBlack"
+        android:textColorHint="@color/colorBlack"
+        android:hint="Où voulez-vous allez ?"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"/>
 
 </android.support.design.widget.CoordinatorLayout>
 
