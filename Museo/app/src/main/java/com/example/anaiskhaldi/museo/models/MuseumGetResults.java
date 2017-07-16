@@ -1,5 +1,7 @@
 package com.example.anaiskhaldi.museo.models;
 
+import com.example.anaiskhaldi.museo.models.museum.MuseumGetGeometryData;
+
 /**
  * Created by Adeline on 13/07/2017.
  */

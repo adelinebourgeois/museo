@@ -41,6 +41,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.R.attr.id;
 import static com.example.anaiskhaldi.museo.R.*;
 
 public class SearchLocationActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -66,7 +67,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
         // Affichage de la map après les changement demandés dans le onMapReady
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         editTextSearchLocation.setOnKeyListener(new View.OnKeyListener() {
