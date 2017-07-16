@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.anaiskhaldi.museo.R;
-import com.example.anaiskhaldi.museo.ui.location.SearchLocationActivity;
+import com.example.anaiskhaldi.museo.ui.search.SearchLocationActivity;
 import com.example.anaiskhaldi.museo.utils.Constant;
 
 import java.util.Timer;

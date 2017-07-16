@@ -1,6 +1,4 @@
-package com.example.anaiskhaldi.museo.models;
-
-import com.google.gson.annotations.SerializedName;
+package com.example.anaiskhaldi.museo.models.museum;
 
 /**
  * Created by Adeline on 12/07/2017.
@@ -17,11 +15,4 @@ public class MuseumGetGeometryData {
                 '}';
     }
 
-    public MuseumGetGeometryLocationData getLocation() {
-        return location;
-    }
-
-    public void setLocation(MuseumGetGeometryLocationData location) {
-        this.location = location;
-    }
 }

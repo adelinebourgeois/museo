@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.anaiskhaldi.museo.ui.detail.DetailActivity">
+    <fragment
+        android:id="@+id/mapDetail"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:layout_alignParentRight="true"
+        class="com.google.android.gms.maps.SupportMapFragment"/>
+    <TextView
+        android:id="@+id/textViewMuseumName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:text="Name"
+        android:textColor="@color/colorWhite"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:paddingTop="20dp"
+        android:paddingRight="40dp"
+        android:paddingBottom="20dp"
+        android:paddingLeft="40dp"
+        android:background="@color/colorDarkBlue"
+        />
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/detail_address"
+                android:textColor="@color/colorRed"
+                android:textSize="19sp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:id="@+id/textViewAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Adresse"
+                android:layout_marginBottom="30dp"
+                android:textSize="18sp"
+                android:textColor="@color/colorBlack"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/detail_OpeningHours"
+                android:textColor="@color/colorRed"
+                android:textSize="19sp"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:id="@+id/textViewOpeningHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Ouverture"
+                android:layout_marginBottom="10dp"
+                android:textColor="@color/colorBlack"
+                android:textSize="18sp" />
+
+
+            <LinearLayout
+                android:id="@+id/linearLayoutRating"
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Avis"
+                    android:textColor="@color/colorRed"
+                    android:textStyle="bold"
+                    android:textSize="23sp"
+                    android:layout_marginRight="15dp"/>
+            </LinearLayout>
+    </LinearLayout>
+</ScrollView>
+
+
+</LinearLayout>
