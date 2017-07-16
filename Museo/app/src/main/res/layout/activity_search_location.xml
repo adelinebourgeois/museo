@@ -1,50 +1,54 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.anaiskhaldi.museo.ui.location.SearchLocationActivity" >
+    android:orientation="vertical"
+    tools:context="com.example.anaiskhaldi.museo.ui.search.SearchLocationActivity">
 
     <fragment
         android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/editTextPlaces"
         class="com.google.android.gms.maps.SupportMapFragment"/>
 
-    <Button
-        android:id="@+id/submitButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/editTextPlaces"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true"
-        android:background="#004283"
-        android:textColor="@android:color/white"
-        android:onClick="placeLocate"
-        android:text="Go" />
+    <!-- Image Menu Hamburger -->
+    <ImageView
+        android:id="@+id/imageViewMenu"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="25dp"
+        android:layout_gravity="left|top"
+        android:src="@drawable/menu_icon_blue" />
 
+    <!-- Image Marker / Logo -->
+    <ImageView
+        android:src="@drawable/splashscreen_marker_red"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="end|top" />
+
+    <!-- EditText for search location -->
     <EditText
-        android:id="@+id/editTextPlaces"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:hint="Entrez un lieux"
-        android:textColor="#004283"
-        android:layout_toLeftOf="@+id/submitButton">
-    </EditText>
-
-    <fragment
-        android:id="@+id/place_autocomplete_fragment"
+        android:id="@+id/editTextSearchLocation"
+        android:hint="@string/editText_search_hint_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
-        android:layout_below="@+id/submitButton"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="16dp"
+        android:padding="10dp"
+        android:layout_gravity="bottom"
+        android:drawableLeft="@drawable/ic_search_black_24dp"
+        android:drawablePadding="15dp"
+        android:imeOptions="actionDone"
+        android:maxLines="1"
+        android:textColor="@color/colorBlack"
+        android:background="@color/colorWhite"/>
 
-    <!--android:layout_alignTop="@+id/map"-->
-
-</RelativeLayout>
-
+</android.support.design.widget.CoordinatorLayout>

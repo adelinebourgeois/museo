@@ -42,8 +42,11 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".ui.location.SearchLocationActivity"
-            android:label="@string/title_activity_search_location"></activity>
+            android:name=".ui.search.SearchLocationActivity"
+            android:label="@string/title_activity_search_location" />
+        <activity
+            android:name=".ui.detail.DetailActivity"
+            android:theme="@style/DetailTheme"></activity>
     </application>
 
 </manifest>

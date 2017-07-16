@@ -8,5 +8,13 @@ public class Constant {
 
     // Splash Screen
     public static final long SPLASH_TIME = 2000;
-    public static final String URL_GET_MUSEUM = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=48.866667,2.349014&radius=500&type=museum&key=AIzaSyA39UHu2BMJpJ4cz5xJSUv_eUr9ce8-2IY";
+
+    // API KEY
+    public static final String API_KEY_GEOCODING = "AIzaSyBMf6E3QovzQx4L6IgRA3Q7CvXFiItnKAA";
+    public static final String API_KEY_PLACES = "AIzaSyA39UHu2BMJpJ4cz5xJSUv_eUr9ce8-2IY";
+
+    public static final String URL_GET_COORDONNATE = "https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=" + API_KEY_GEOCODING;
+    public static final String URL_GET_MUSEUM = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%s&radius=500&type=museum&key=" + API_KEY_PLACES;
+    public static final String URL_GET_MUSEUM_DETAIL = "https://maps.googleapis.com/maps/api/place/details/json?placeid=%s&language=fr&key=" + API_KEY_PLACES;
+
 }

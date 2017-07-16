@@ -2,4 +2,8 @@
     <string name="app_name">Museo</string>
     <string name="main_title">museo</string>
     <string name="title_activity_search_location">Map</string>
+    <string name="editText_search_hint_text">Où voulez-vous aller ?</string>
+    <string name="dialog_internet_error">Réseau non trouvé</string>
+    <string name="detail_address">Adresse</string>
+    <string name="detail_OpeningHours">Horaires d\'ouverture</string>
 </resources>

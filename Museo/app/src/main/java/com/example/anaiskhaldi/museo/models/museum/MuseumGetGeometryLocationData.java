@@ -1,4 +1,4 @@
-package com.example.anaiskhaldi.museo.models;
+package com.example.anaiskhaldi.museo.models.museum;
 
 /* Created by Adeline on 13/07/2017.
  */
