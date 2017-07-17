@@ -6,4 +6,7 @@
     <string name="dialog_internet_error">Réseau non trouvé</string>
     <string name="detail_address">Adresse</string>
     <string name="detail_OpeningHours">Horaires d\'ouverture</string>
+    <string name="detail_phone">Telephone</string>
+    <string name="detail_site_internet">Site internet</string>
+    <string name="detail_avis">Avis</string>
 </resources>

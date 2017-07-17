@@ -78,10 +78,10 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                 if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) || (keyCode == KeyEvent.KEYCODE_ENTER)){
 
                     if(editTextSearchLocation.getText().toString().length() > 0) {
+                        // Faire disparaitre le clavier
                         hideKeyboard(view);
                         // Perform action on key enter press
                         getLocation();
-                        // Faire disparaitre le clavier
 
                         getMuseumLocation();
                     }
@@ -303,7 +303,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
     // Method to hide the keyboard
     public void hideKeyboard(View view) {
-        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(SearchLocationActivity.this.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(SearchLocationActivity.this.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
