@@ -49,6 +49,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
     private TextView textViewAddress;
     private TextView textViewOpeningHours;
     private LinearLayout linearLayoutRating;
+    private ImageView imageViewPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +91,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         textViewOpeningHours = (TextView) findViewById(R.id.textViewOpeningHours);
 
         linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
+        imageViewPhoto = (ImageView) findViewById(R.id.imageViewPhoto);
 
 
         if (Network.isNetworkAvailable(DetailActivity.this)) {
