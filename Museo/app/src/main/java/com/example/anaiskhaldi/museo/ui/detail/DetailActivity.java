@@ -60,7 +60,6 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
         getMuseumDetail();
 
-
     }
 
     /**
