@@ -12,6 +12,8 @@ public class Preference {
     private static final String PREF_MUSEUM_LATITUDE = "lat";
     private static final String PREF_MUSEUM_LONGITUDE = "lng";
     private static final String PREF_MUSEUM_PLACE_ID = "name";
+    private static final String PREF_MUSEUM_WEBSITE = "website";
+    private static final String PREF_MUSEUM_PHONE = "phone";
 
 
     private static SharedPreferences get(Context context) {
@@ -46,6 +48,21 @@ public class Preference {
     }
     public static void setMuseumPlaceId(Context context, String placeId){
         get(context).edit().putString(PREF_MUSEUM_PLACE_ID, placeId).commit();
+    }
+
+    public static String getWebsite(Context context){
+        return get(context).getString(PREF_MUSEUM_WEBSITE, null);
+    }
+
+    public static void setWebsite(Context context, String website){
+        get(context).edit().putString(PREF_MUSEUM_WEBSITE, website).commit();
+    }
+
+    public static String getPhone(Context context){
+        return get(context).getString(PREF_MUSEUM_PHONE, null);
+    }
+    public static void setPhone(Context context, String phone){
+        get(context).edit().putString(PREF_MUSEUM_PHONE, phone).commit();
     }
 
 }

@@ -38,41 +38,105 @@
             android:layout_marginLeft="25dp"
             android:layout_marginRight="25dp">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/detail_address"
-                android:textColor="@color/colorRed"
-                android:textSize="19sp"
+                android:orientation="horizontal"
                 android:layout_marginTop="30dp"
-                android:layout_marginBottom="5dp"/>
+                android:layout_marginBottom="5dp">
+                <ImageView
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/icon_address"
+                    android:layout_marginRight="5dp"/>
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/detail_address"
+                    android:textColor="@color/colorRed"
+                    android:textSize="19sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textViewAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Adresse"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="10dp"
                 android:textSize="18sp"
                 android:textColor="@color/colorBlack"/>
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/detail_OpeningHours"
-                android:textColor="@color/colorRed"
-                android:textSize="19sp"
-                android:layout_marginBottom="5dp"/>
+                android:orientation="horizontal"
+                android:layout_marginBottom="5dp">
+                <ImageView
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/icon_opening_hours"
+                    android:layout_marginRight="5dp"/>
+                <TextView
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/detail_OpeningHours"
+                    android:textColor="@color/colorRed"
+                    android:textSize="19sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textViewOpeningHours"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Ouverture"
-                android:layout_marginBottom="10dp"
                 android:textColor="@color/colorBlack"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:layout_marginBottom="5dp"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/icon_phone"/>
+                <TextView
+                    android:id="@+id/textViewPhone"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="@string/detail_phone"
+                    android:textColor="@color/colorRed"
+                    android:textSize="19sp" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/icon_link"/>
+                <TextView
+                    android:id="@+id/textViewLink"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="@string/detail_site_internet"
+                    android:textColor="@color/colorRed"
+                    android:textSize="19sp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/linearLayoutRating"
@@ -84,7 +148,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Avis"
+                    android:text="@string/detail_avis"
                     android:textColor="@color/colorRed"
                     android:textStyle="bold"
                     android:textSize="23sp"

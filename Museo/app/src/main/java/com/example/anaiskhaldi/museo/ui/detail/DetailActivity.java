@@ -1,17 +1,26 @@
 package com.example.anaiskhaldi.museo.ui.detail;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -38,10 +47,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class DetailActivity extends FragmentActivity implements OnMapReadyCallback {
+public class DetailActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
 
     private static final String TAG = "Detail";
     private GoogleMap mapDetail;
@@ -49,18 +60,51 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
     private TextView textViewAddress;
     private TextView textViewOpeningHours;
     private LinearLayout linearLayoutRating;
+    private TextView textViewPhone;
+    private TextView textViewLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
+        textViewMuseumName = (TextView) findViewById(R.id.textViewMuseumName);
+        textViewAddress = (TextView) findViewById(R.id.textViewAddress);
+        textViewOpeningHours = (TextView) findViewById(R.id.textViewOpeningHours);
+        textViewPhone = (TextView) findViewById(R.id.textViewPhone);
+        textViewLink = (TextView) findViewById(R.id.textViewLink);
+
+        linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapDetail);
         mapFragment.getMapAsync(this);
 
+        // Ajout des écouteurs
+        if(Preference.getPhone(DetailActivity.this) != null && Preference.getWebsite(DetailActivity.this) != null){
+            textViewPhone.setOnClickListener(DetailActivity.this);
+            textViewLink.setOnClickListener(DetailActivity.this);
+        }
+
         getMuseumDetail();
 
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == 10) {
+            if (permissions[0].equals(Manifest.permission.CALL_PHONE) && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+                // Relancer un appel téléphonique
+                textViewPhone.performClick();
+
+            } else {
+
+                textViewPhone.setText("Il n'y a pas de téléphone");
+
+            }
+        }
     }
 
     /**
@@ -84,13 +128,51 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
     }
 
+    @Override
+    public void onClick(View view) {
+
+        TextView textView = (TextView) view;
+
+        switch (view.getId()) {
+            case R.id.textViewPhone:
+
+                Intent intentPhone = new Intent(Intent.ACTION_CALL);
+
+                intentPhone.setData(Uri.parse("tel:" + Preference.getPhone(DetailActivity.this)));
+                if (ActivityCompat.checkSelfPermission(DetailActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(new String[] { Manifest.permission.CALL_PHONE }, 10);
+                    }
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                startActivity(intentPhone);
+
+                break;
+
+            case R.id.textViewLink:
+
+                Intent intentSite = new Intent(Intent.ACTION_VIEW);
+
+                intentSite.setData(Uri.parse(Preference.getWebsite(DetailActivity.this)));
+
+                startActivity(intentSite);
+
+                break;
+
+        }
+
+    }
+
     public void getMuseumDetail() {
 
-        textViewMuseumName = (TextView) findViewById(R.id.textViewMuseumName);
-        textViewAddress = (TextView) findViewById(R.id.textViewAddress);
-        textViewOpeningHours = (TextView) findViewById(R.id.textViewOpeningHours);
-
-        linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
 
 
         if (Network.isNetworkAvailable(DetailActivity.this)) {
@@ -98,6 +180,8 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(DetailActivity.this);
             String url = String.format(Constant.URL_GET_MUSEUM_DETAIL, Preference.getMuseumPlaceId(DetailActivity.this)); //l'url du web service
+
+            Log.e(TAG, "url: "+url);
 
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
@@ -122,41 +206,62 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
                                 textViewAddress.setText(address);
 
                                 // Set text for museum opening hours
-                                String openingMonday = detailGet.result.opening_hours.weekday_text[0];
-                                String openingTuesday = detailGet.result.opening_hours.weekday_text[1];
-                                String openingWednesday = detailGet.result.opening_hours.weekday_text[2];
-                                String openingThursday = detailGet.result.opening_hours.weekday_text[3];
-                                String openingFriday = detailGet.result.opening_hours.weekday_text[4];
-                                String openingSaturday = detailGet.result.opening_hours.weekday_text[5];
-                                String openingSunday = detailGet.result.opening_hours.weekday_text[6];
+                                if(detailGet.result.opening_hours != null){
+                                    String openingMonday = detailGet.result.opening_hours.weekday_text[0];
+                                    String openingTuesday = detailGet.result.opening_hours.weekday_text[1];
+                                    String openingWednesday = detailGet.result.opening_hours.weekday_text[2];
+                                    String openingThursday = detailGet.result.opening_hours.weekday_text[3];
+                                    String openingFriday = detailGet.result.opening_hours.weekday_text[4];
+                                    String openingSaturday = detailGet.result.opening_hours.weekday_text[5];
+                                    String openingSunday = detailGet.result.opening_hours.weekday_text[6];
 
-                                String openingDays = openingMonday + "\r\n" +
-                                        openingTuesday + "\r\n" +
-                                        openingWednesday + "\r\n" +
-                                        openingThursday + "\r\n" +
-                                        openingFriday + "\r\n" +
-                                        openingSaturday + "\r\n" +
-                                        openingSunday + "\r\n";
-                                textViewOpeningHours.setText(openingDays);
-
-
-                                // Rating
-                                Float rating = detailGet.result.rating;
-
-                                //linearLayoutRating
-
-                                for(int i = 1; i < rating; i++){
-                                    ImageView image = new ImageView(DetailActivity.this);
-                                    image.setBackgroundResource(R.drawable.star_red);
-                                    linearLayoutRating.addView(image);
-                                    image.getLayoutParams().height = 100;
-                                    image.getLayoutParams().width = 100;
+                                    String openingDays = openingMonday + "\r\n" +
+                                            openingTuesday + "\r\n" +
+                                            openingWednesday + "\r\n" +
+                                            openingThursday + "\r\n" +
+                                            openingFriday + "\r\n" +
+                                            openingSaturday + "\r\n" +
+                                            openingSunday;
+                                    textViewOpeningHours.setText(openingDays);
+                                } else {
+                                    textViewOpeningHours.setText("Il n'y a pas d'horaires d'ouverture de renseignés.");
                                 }
 
+                                // Rating
+                                if(detailGet.result.rating != null){
+                                    Float rating = detailGet.result.rating;
+
+                                    for(int i = 1; i < rating; i++){
+                                        ImageView image = new ImageView(DetailActivity.this);
+                                        image.setBackgroundResource(R.drawable.star_red);
+                                        linearLayoutRating.addView(image);
+                                        image.getLayoutParams().height = 100;
+                                        image.getLayoutParams().width = 100;
+                                    }
+                                } else {
+                                    TextView text = new TextView(DetailActivity.this);
+                                    text.setText("Il n'y a pas d'avis");
+                                    linearLayoutRating.addView(text);
+                                }
+
+                                // numero de telephone et site internet
+                                String formattedPhone = detailGet.result.formatted_phone_number;
+                                if(formattedPhone != null){
+                                    Preference.setPhone(DetailActivity.this, formattedPhone);
+                                } else {
+                                    textViewPhone.setText("Il n'y a pas de téléphone");
+                                }
+
+                                String formattedLink = detailGet.result.website;
+                                if(formattedLink != null){
+                                    Preference.setWebsite(DetailActivity.this, formattedLink);
+                                } else {
+                                    textViewLink.setText("Il n'y pas de site internet");
+                                }
 
                             } else {
 
-                                FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, detailGet.error_message);
+                                FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "erreur");
 
                             }
 
@@ -166,9 +271,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
                         @Override
                         public void onErrorResponse(VolleyError error) {
 
-                            String message = new String(error.networkResponse.data);
-
-                            FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Probleme "+message);
+                            FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Probleme ");
                         }
                     }
             );
@@ -181,6 +284,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
 
     }
+
 
     public void addMarker(Float lat, Float lng){
 
