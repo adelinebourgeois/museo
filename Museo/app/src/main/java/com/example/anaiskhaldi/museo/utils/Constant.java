@@ -16,5 +16,6 @@ public class Constant {
     public static final String URL_GET_COORDONNATE = "https://maps.googleapis.com/maps/api/geocode/json?address=%s&region=fr&key=" + API_KEY_GEOCODING;
     public static final String URL_GET_MUSEUM = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=%s&radius=500&type=museum&key=" + API_KEY_PLACES;
     public static final String URL_GET_MUSEUM_DETAIL = "https://maps.googleapis.com/maps/api/place/details/json?placeid=%s&language=fr&key=" + API_KEY_PLACES;
+    public static final String URL_GET_MUSEUM_PHOTO = "https://maps.googleapis.com/maps/api/place/photo?photoreference=%s&maxwidth=400&key=" + API_KEY_PLACES;
 
 }

@@ -1,6 +1,7 @@
 package com.example.anaiskhaldi.museo.ui.detail;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -46,9 +47,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,9 +63,11 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
     private TextView textViewAddress;
     private TextView textViewOpeningHours;
     private LinearLayout linearLayoutRating;
+    private LinearLayout linearLayoutPhoto;
 	private ImageView imageViewPhoto;
     private TextView textViewPhone;
     private TextView textViewLink;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +81,8 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         textViewLink = (TextView) findViewById(R.id.textViewLink);
 
         linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
+        linearLayoutPhoto = (LinearLayout) findViewById(R.id.linearLayoutPhoto);
+        imageViewPhoto = (ImageView) findViewById(R.id.imageViewPhoto);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapDetail);
         mapFragment.getMapAsync(this);
@@ -173,28 +180,40 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
     }
 
+
     public void getMuseumDetail() {
 
-
-        imageViewPhoto = (ImageView) findViewById(R.id.imageViewPhoto);
-
         if (Network.isNetworkAvailable(DetailActivity.this)) {
+
+            // Afficher un loader
+            dialog = FastDialog.showProgressDialog(DetailActivity.this, "Chargement des infos..."); // une pop up "chargement ...".
+            dialog.show();
 
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(DetailActivity.this);
             String url = String.format(Constant.URL_GET_MUSEUM_DETAIL, Preference.getMuseumPlaceId(DetailActivity.this)); //l'url du web service
 
-            Log.e(TAG, "url: "+url);
-
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) { // 200
+                            // cacher la boîte de dialogue
+                            dialog.dismiss();
 
                             Gson gson = new Gson(); //une instance d'un objet Gson (permet de décoder le fichier JSON qui est renvoyé par le serveur).
                             DetailGet detailGet = gson.fromJson(response, DetailGet.class); //nous lançons le décodage (La lecture du fichier JSON renvoyé par le web service )
 
                             if(detailGet.status.equals("OK")) {
+
+                                if(detailGet.result.photos != null) {
+                                    for(int i =0; i < detailGet.result.photos.size(); i++) {
+                                        getMuseumPhoto(detailGet.result.photos.get(i).photo_reference);
+                                    }
+                                } else {
+                                    TextView text = new TextView(DetailActivity.this);
+                                    text.setText("Il n'y a pas de photo");
+                                    linearLayoutPhoto.addView(text);
+                                }
 
                                 // Set text for museum name
                                 textViewMuseumName.setText(detailGet.result.name);
@@ -274,7 +293,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
                         @Override
                         public void onErrorResponse(VolleyError error) {
 
-                            FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Probleme ");
+                            FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Désole, une erreur est survenue");
                         }
                     }
             );
@@ -286,6 +305,19 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         }
 
 
+    }
+
+    public void getMuseumPhoto(String photoReference) {
+        if(Network.isNetworkAvailable(DetailActivity.this)) {
+
+            final String url = String.format(Constant.URL_GET_MUSEUM_PHOTO, photoReference); //l'url du web service
+            Log.d(TAG, "url: "+url);
+
+            // Photo
+            Picasso.with(DetailActivity.this)
+                        .load(url)
+                        .into(imageViewPhoto);
+        }
     }
 
 

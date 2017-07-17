@@ -21,6 +21,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.anaiskhaldi.museo.R;
+import com.example.anaiskhaldi.museo.models.detail.DetailPhoto;
 import com.example.anaiskhaldi.museo.models.museum.DataGet;
 import com.example.anaiskhaldi.museo.models.museum.MuseumGetGeometryData;
 import com.example.anaiskhaldi.museo.models.location.LocationGet;
@@ -39,10 +40,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static android.R.attr.id;
 import static com.example.anaiskhaldi.museo.R.*;
 
 public class SearchLocationActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -136,14 +133,13 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
             @Override
             public boolean onMarkerClick(Marker arg0) {
                 if(arg0 != null) {
-                    // Affiche un loader
-                    dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, "Chargement des infos..."); // une pop up "chargement ...".
-                    dialog.show();
 
                     Preference.setMuseumPlaceId(SearchLocationActivity.this, arg0.getTitle());
 
+                    Preference.setPhoto(SearchLocationActivity.this, arg0.getSnippet());
+
                     Intent intentMarker = new Intent(SearchLocationActivity.this, DetailActivity.class);
-                    dialog.dismiss();
+
                     startActivity(intentMarker);
                 }
                 return true;
@@ -237,7 +233,6 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
                                     MuseumGetGeometryData datas = dataGet.results.get(i).geometry;
                                     addMarker(datas.location.lat, datas.location.lng, dataGet.results.get(i).place_id);
-
                                 }
 
                            } else {
@@ -285,6 +280,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         LatLng location = new LatLng(lat,lng);
         mMap.addMarker(new MarkerOptions().position(location)
                 .title(placeId)
+//                .snippet(photoReference)
                 .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
 
         // GEt search coordinate to zoom the map on it
