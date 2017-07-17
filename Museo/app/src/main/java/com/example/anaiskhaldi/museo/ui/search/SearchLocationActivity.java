@@ -1,5 +1,6 @@
 package com.example.anaiskhaldi.museo.ui.search;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -41,6 +42,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.R.attr.id;
 import static com.example.anaiskhaldi.museo.R.*;
 
 public class SearchLocationActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -48,6 +50,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
     // Déclaration des ids
     private ImageView imageViewMenu;
     private EditText editTextSearchLocation;
+    private Dialog dialog;
 
     // Déclaration de la carte
     private GoogleMap mMap;
@@ -61,12 +64,12 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         setContentView(layout.activity_search_location);
 
         // Stockage des éléments du layout
-        imageViewMenu = (ImageView) findViewById(R.id.imageViewMenu);
+//        imageViewMenu = (ImageView) findViewById(R.id.imageViewMenu);
         editTextSearchLocation = (EditText) findViewById(R.id.editTextSearchLocation);
 
         // Affichage de la map après les changement demandés dans le onMapReady
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         editTextSearchLocation.setOnKeyListener(new View.OnKeyListener() {
@@ -79,6 +82,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                         hideKeyboard(view);
                         // Perform action on key enter press
                         getLocation();
+
                         getMuseumLocation();
                     }
                     return true;
@@ -132,10 +136,14 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
             @Override
             public boolean onMarkerClick(Marker arg0) {
                 if(arg0 != null) {
+                    // Affiche un loader
+                    dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, "Chargement des infos..."); // une pop up "chargement ...".
+                    dialog.show();
 
                     Preference.setMuseumPlaceId(SearchLocationActivity.this, arg0.getTitle());
 
                     Intent intentMarker = new Intent(SearchLocationActivity.this, DetailActivity.class);
+                    dialog.dismiss();
                     startActivity(intentMarker);
                 }
                 return true;
@@ -205,6 +213,10 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
         if (Network.isNetworkAvailable(SearchLocationActivity.this)) {
 
+            // Afficher un loader
+            dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, "Chargement des musées à proximité..."); // une pop up "chargement ...".
+            dialog.show();
+
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(SearchLocationActivity.this);
             String url = String.format(Constant.URL_GET_MUSEUM, Preference.getSearchLocationCoordinate(SearchLocationActivity.this)); //l'url du web service
@@ -218,6 +230,8 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                             final DataGet dataGet = gson.fromJson(response, DataGet.class); //nous lançons le décodage (La lecture du fichier JSON renvoyé par le web service )
 
                             if(dataGet.status.equals("OK")) {
+                                // cacher la boîte de dialogue
+                                dialog.dismiss();
 
                                 for (int i = 0; i < dataGet.results.size(); i++) {
 
@@ -228,8 +242,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
                            } else {
 
-                               FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, dataGet.error_message);
-
+                               FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Désolé, une erreur est survenue");
                            }
 
                         }
@@ -238,9 +251,12 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                         @Override
                         public void onErrorResponse(VolleyError error) {
 
+                            // cacher la boîte de dialogue
+                            dialog.dismiss();
+
                             String message = new String(error.networkResponse.data);
 
-                            FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Probleme "+message);
+                            FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Désolé, une erreur est survenue");
                         }
                     }
             );
@@ -248,6 +264,8 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
             // Add the request to the RequestQueue.
             queue.add(stringRequest);
         } else {
+            // cacher la boîte de dialogue
+            dialog.dismiss();
             FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Vous devez être connecté");
         }
 
