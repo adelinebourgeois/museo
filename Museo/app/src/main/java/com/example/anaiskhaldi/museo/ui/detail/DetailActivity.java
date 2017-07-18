@@ -15,8 +15,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -31,6 +33,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.anaiskhaldi.museo.R;
 import com.example.anaiskhaldi.museo.models.detail.DetailGet;
+import com.example.anaiskhaldi.museo.models.detail.DetailPhoto;
 import com.example.anaiskhaldi.museo.models.museum.DataGet;
 import com.example.anaiskhaldi.museo.models.museum.MuseumGetGeometryData;
 import com.example.anaiskhaldi.museo.ui.search.SearchLocationActivity;
@@ -55,6 +58,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.anaiskhaldi.museo.R.id.galleryPhoto;
+
 public class DetailActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
 
     private static final String TAG = "Detail";
@@ -64,10 +69,13 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
     private TextView textViewOpeningHours;
     private LinearLayout linearLayoutRating;
     private LinearLayout linearLayoutPhoto;
+	private Gallery galleryPhoto;
 	private ImageView imageViewPhoto;
     private TextView textViewPhone;
     private TextView textViewLink;
     private Dialog dialog;
+    private ArrayList<DetailPhoto> photoList = new ArrayList<>();
+    private GalleryAdapter galleryImageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +90,10 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
         linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
         linearLayoutPhoto = (LinearLayout) findViewById(R.id.linearLayoutPhoto);
-        imageViewPhoto = (ImageView) findViewById(R.id.imageViewPhoto);
+        galleryPhoto = (Gallery) findViewById(R.id.galleryPhoto);
+
+        galleryImageAdapter= new GalleryAdapter(DetailActivity.this, R.layout.item_gallery, photoList);
+        galleryPhoto.setAdapter(galleryImageAdapter);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapDetail);
         mapFragment.getMapAsync(this);
@@ -206,9 +217,9 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
                             if(detailGet.status.equals("OK")) {
 
                                 if(detailGet.result.photos != null) {
-                                    for(int i =0; i < detailGet.result.photos.size(); i++) {
-                                        getMuseumPhoto(detailGet.result.photos.get(i).photo_reference);
-                                    }
+                                    photoList.clear();
+                                    photoList.addAll(detailGet.result.photos);
+                                    galleryImageAdapter.notifyDataSetChanged();
                                 } else {
                                     TextView text = new TextView(DetailActivity.this);
                                     text.setText("Il n'y a pas de photo");
@@ -310,13 +321,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
     public void getMuseumPhoto(String photoReference) {
         if(Network.isNetworkAvailable(DetailActivity.this)) {
 
-            final String url = String.format(Constant.URL_GET_MUSEUM_PHOTO, photoReference); //l'url du web service
-            Log.d(TAG, "url: "+url);
 
-            // Photo
-            Picasso.with(DetailActivity.this)
-                        .load(url)
-                        .into(imageViewPhoto);
         }
     }
 
