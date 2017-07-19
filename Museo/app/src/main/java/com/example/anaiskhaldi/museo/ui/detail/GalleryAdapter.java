@@ -28,12 +28,11 @@ public class GalleryAdapter extends ArrayAdapter<DetailPhoto> {
     private LayoutInflater inflater;
     private int resId;
 
-    //paramètres: this, R.layout.item_gallery, photoList
     public GalleryAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<DetailPhoto> objects) {
         super(context, resource, objects);
 
-        resId = resource; // R.layout.item_gallery //chemin de la resources, du layout
-        inflater = LayoutInflater.from(context); // init inflater // inflater permet le remplacement de zone
+        resId = resource;//chemin de la resources, du layout R.layout.item_gallery
+        inflater = LayoutInflater.from(context); // Inflater permet le remplacement de zone
     }
 
     @NonNull
@@ -63,9 +62,9 @@ public class GalleryAdapter extends ArrayAdapter<DetailPhoto> {
         String url = String.format(Constant.URL_GET_MUSEUM_PHOTO, item.photo_reference); //l'url du web service
 
         // Photo
-            Picasso.with(getContext())
-                        .load(url)
-                        .into(viewHolder.imageViewPhoto);
+        Picasso.with(getContext())
+                    .load(url)
+                    .into(viewHolder.imageViewPhoto);
 
         return convertView;
     }

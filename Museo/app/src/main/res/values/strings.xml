@@ -4,9 +4,13 @@
     <string name="title_activity_search_location">Map</string>
     <string name="editText_search_hint_text">Où voulez-vous aller ?</string>
     <string name="dialog_internet_error">Réseau non trouvé</string>
+    <string name="dialog_error">Désolé, une erreur est survenue</string>
+    <string name="editText_error">Le champ de recherche doit être renseigné</string>
     <string name="detail_address">Adresse</string>
     <string name="detail_OpeningHours">Horaires d\'ouverture</string>
     <string name="detail_phone">Telephone</string>
     <string name="detail_site_internet">Site internet</string>
     <string name="detail_avis">Avis</string>
+    <string name="chargement_musee">Chargement des musées à proximité...</string>
+    <string name="chargement_infos">Chargement des infos...</string>
 </resources>

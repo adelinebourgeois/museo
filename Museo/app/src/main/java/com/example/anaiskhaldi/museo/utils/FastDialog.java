@@ -65,7 +65,6 @@ public class FastDialog {
 			ProgressDialog progressDialog;
 			switch (typeDialog) {
 			case PROGRESS_DIALOG:
-				// Looper.prepare();
 				progressDialog = new ProgressDialog(c);
 				progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
 				progressDialog.setMessage(message);

@@ -60,6 +60,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.R.attr.button;
 import static com.example.anaiskhaldi.museo.R.id.galleryPhoto;
 
 public class DetailActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
@@ -75,6 +76,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 	private ImageView imageViewPhoto;
     private TextView textViewPhone;
     private TextView textViewLink;
+    private TextView textViewShare;
 
     private ImageView back;
 
@@ -94,6 +96,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         textViewOpeningHours = (TextView) findViewById(R.id.textViewOpeningHours);
         textViewPhone = (TextView) findViewById(R.id.textViewPhone);
         textViewLink = (TextView) findViewById(R.id.textViewLink);
+        textViewShare = (TextView) findViewById(R.id.textViewShare);
         back = (ImageView) findViewById(R.id.back);
 
         linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
@@ -103,16 +106,26 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         galleryImageAdapter= new GalleryAdapter(DetailActivity.this, R.layout.item_gallery, photoList);
         galleryPhoto.setAdapter(galleryImageAdapter);
 
+        galleryPhoto.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(DetailActivity.this, PhotoActivity.class);
+
+                intent.putExtra(Constant.PHOTO, photoList.get(position).getPhoto_reference());
+                intent.putExtra(Constant.PLACE_ID, getIntent().getExtras().getString(Constant.PLACE_ID));
+                startActivity(intent);
+            }
+        });
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapDetail);
         mapFragment.getMapAsync(this);
 
         // Ajout des écouteurs
-        if(Preference.getPhone(DetailActivity.this) != null && Preference.getWebsite(DetailActivity.this) != null){
-            textViewPhone.setOnClickListener(DetailActivity.this);
-            textViewLink.setOnClickListener(DetailActivity.this);
-        }
+        textViewPhone.setOnClickListener(DetailActivity.this);
+        textViewLink.setOnClickListener(DetailActivity.this);
+        textViewShare.setOnClickListener(DetailActivity.this);
 
         getMuseumDetail();
 
@@ -121,6 +134,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
             @Override
             public void onClick(View view) {
                 Intent intentCircuit = new Intent(DetailActivity.this, CircuitActivity.class);
+                intentCircuit.putExtra(Constant.PLACE_ID, getIntent().getExtras().getString("place_id"));
                 startActivity(intentCircuit);
             }
         });
@@ -130,18 +144,11 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Preference.setBack(DetailActivity.this, true);
-                onBackPressed();
+                Intent intent = new Intent(DetailActivity.this, SearchLocationActivity.class);
+                intent.putExtra(Constant.BOOLEAN, true);
+                startActivity(intent);
             }
         });
-
-
-    }
-
-    @Override
-    public void onBackPressed() {
-        startActivity(new Intent(DetailActivity.this, SearchLocationActivity.class));
-        finish();
     }
 
     @Override
@@ -173,17 +180,10 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         mapDetail = googleMap;
-
-        // Add a marker in Sydney and move the camera
-        //LatLng paris = new LatLng(48.856614, 2.3522219);
-        //mMap.addMarker(new MarkerOptions().position(paris).title("Marker in Paris"));
-        //mapDetail.moveCamera(CameraUpdateFactory.newLatLngZoom(paris, 12));
-
-
     }
 
+    // Evénement telephone, site web et share
     @Override
     public void onClick(View view) {
 
@@ -194,19 +194,13 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
                 Intent intentPhone = new Intent(Intent.ACTION_CALL);
 
-                intentPhone.setData(Uri.parse("tel:" + Preference.getPhone(DetailActivity.this)));
+                intentPhone.setData(Uri.parse("tel:" + textViewPhone.getText().toString()));
                 if (ActivityCompat.checkSelfPermission(DetailActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         requestPermissions(new String[] { Manifest.permission.CALL_PHONE }, 10);
                     }
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
+
                     return;
                 }
                 startActivity(intentPhone);
@@ -216,10 +210,27 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
             case R.id.textViewLink:
 
                 Intent intentSite = new Intent(Intent.ACTION_VIEW);
-
-                intentSite.setData(Uri.parse(Preference.getWebsite(DetailActivity.this)));
-
+                String link = "http://"+textViewLink.getText().toString()+"/";
+                intentSite.setData(Uri.parse(link));
                 startActivity(intentSite);
+
+                break;
+            case R.id.textViewShare:
+
+                Intent intentShare = new Intent(Intent.ACTION_SEND);
+
+                String message = "Info sur " + textViewMuseumName.getText().toString() + '\n' + '\n' +
+                        "Adresse : " + textViewAddress.getText().toString() + '\n' + '\n' +
+                        "Horaires d'ouverture : " + textViewOpeningHours.getText().toString() + '\n' + '\n' +
+                        "Telephone : " + textViewPhone.getText().toString() + '\n' + '\n' +
+                        "Site internet : " + textViewLink.getText().toString();
+
+                intentShare.putExtra(Intent.EXTRA_SUBJECT, "Information museo");
+                intentShare.putExtra(Intent.EXTRA_EMAIL, new String[]{textView.getText().toString(), "anaisk.khaldi@gmail.com"});
+                intentShare.putExtra(Intent.EXTRA_TEXT, message);
+                intentShare.setType("message/rfc822");
+
+                startActivity(Intent.createChooser(intentShare, "Envoyer un email :"));
 
                 break;
 
@@ -227,160 +238,159 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
     }
 
-
+    //Récupère les détails du musée
     public void getMuseumDetail() {
 
         if (Network.isNetworkAvailable(DetailActivity.this)) {
 
             // Afficher un loader
-            dialog = FastDialog.showProgressDialog(DetailActivity.this, "Chargement des infos..."); // une pop up "chargement ...".
+            dialog = FastDialog.showProgressDialog(DetailActivity.this, getString(R.string.chargement_infos)); // pop up de chargement.
             dialog.show();
 
-            // Instantiate the RequestQueue.
-            RequestQueue queue = Volley.newRequestQueue(DetailActivity.this);
-            String url = String.format(Constant.URL_GET_MUSEUM_DETAIL, Preference.getMuseumPlaceId(DetailActivity.this)); //l'url du web service
+            if(getIntent().getExtras() != null){
+                // Instantiate the RequestQueue.
+                RequestQueue queue = Volley.newRequestQueue(DetailActivity.this);
+                String url = String.format(Constant.URL_GET_MUSEUM_DETAIL, getIntent().getExtras().getString(Constant.PLACE_ID)); //l'url du web service
 
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) { // 200
-                            // cacher la boîte de dialogue
-                            dialog.dismiss();
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) { // 200
+                                // cacher la boîte de dialogue
+                                dialog.dismiss();
 
-                            Gson gson = new Gson(); //une instance d'un objet Gson (permet de décoder le fichier JSON qui est renvoyé par le serveur).
-                            DetailGet detailGet = gson.fromJson(response, DetailGet.class); //nous lançons le décodage (La lecture du fichier JSON renvoyé par le web service )
+                                Gson gson = new Gson(); //une instance d'un objet Gson (permet de décoder le fichier JSON qui est renvoyé par le serveur).
+                                DetailGet detailGet = gson.fromJson(response, DetailGet.class); //nous lançons le décodage (La lecture du fichier JSON renvoyé par le web service )
 
-                            if(detailGet.status.equals("OK")) {
+                                if(detailGet.status.equals("OK")) {
 
-                                if(detailGet.result.photos != null) {
-                                    photoList.clear();
-                                    photoList.addAll(detailGet.result.photos);
-                                    galleryImageAdapter.notifyDataSetChanged();
-                                } else {
-                                    TextView text = new TextView(DetailActivity.this);
-                                    text.setText("Il n'y a pas de photo");
-                                    linearLayoutPhoto.addView(text);
-                                }
-
-                                // Set text for museum name
-                                textViewMuseumName.setText(detailGet.result.name);
-
-                                // Set coordinates for marker on the map
-
-                                addMarker(detailGet.result.geometry.location.lat, detailGet.result.geometry.location.lng);
-
-                                // Set text for museum address
-                                String formattedAdress = detailGet.result.formatted_address;
-                                if(formattedAdress != null){
-                                    String address = formattedAdress.replace(", ", "\r\n");
-                                    textViewAddress.setText(address);
-                                } else {
-                                    textViewAddress.setText("Il n'y a pas d'adresse de renseigné");
-                                }
-
-
-                                // Set text for museum opening hours
-                                if(detailGet.result.opening_hours != null){
-                                    String openingMonday = detailGet.result.opening_hours.weekday_text[0];
-                                    String openingTuesday = detailGet.result.opening_hours.weekday_text[1];
-                                    String openingWednesday = detailGet.result.opening_hours.weekday_text[2];
-                                    String openingThursday = detailGet.result.opening_hours.weekday_text[3];
-                                    String openingFriday = detailGet.result.opening_hours.weekday_text[4];
-                                    String openingSaturday = detailGet.result.opening_hours.weekday_text[5];
-                                    String openingSunday = detailGet.result.opening_hours.weekday_text[6];
-
-                                    String openingDays = openingMonday + "\r\n" +
-                                            openingTuesday + "\r\n" +
-                                            openingWednesday + "\r\n" +
-                                            openingThursday + "\r\n" +
-                                            openingFriday + "\r\n" +
-                                            openingSaturday + "\r\n" +
-                                            openingSunday;
-                                    textViewOpeningHours.setText(openingDays);
-                                } else {
-                                    textViewOpeningHours.setText("Il n'y a pas d'horaires d'ouverture de renseignés.");
-                                }
-
-                                // Rating
-                                if(detailGet.result.rating != null){
-                                    Float rating = detailGet.result.rating;
-
-                                    for(int i = 1; i < rating; i++){
-                                        ImageView image = new ImageView(DetailActivity.this);
-                                        image.setBackgroundResource(R.drawable.star_red);
-                                        linearLayoutRating.addView(image);
-                                        image.getLayoutParams().height = 100;
-                                        image.getLayoutParams().width = 100;
+                                    if(detailGet.result.photos != null) {
+                                        photoList.clear();
+                                        photoList.addAll(detailGet.result.photos);
+                                        galleryImageAdapter.notifyDataSetChanged();
+                                    } else {
+                                        TextView text = new TextView(DetailActivity.this);
+                                        text.setText("Il n'y a pas de photo");
+                                        linearLayoutPhoto.addView(text);
                                     }
+
+                                    // Ajoute le nom du musée
+                                    textViewMuseumName.setText(detailGet.result.name);
+
+                                    // Ajoute le marker
+                                    addMarker(detailGet.result.geometry.location.lat, detailGet.result.geometry.location.lng);
+
+                                    // Ajoute l'adresse du musée
+                                    String formattedAdress = detailGet.result.formatted_address;
+                                    if(formattedAdress != null){
+                                        String address = formattedAdress.replace(", ", "\r\n");
+                                        textViewAddress.setText(address);
+                                    } else {
+                                        textViewAddress.setText("Il n'y a pas d'adresse de renseigné");
+                                    }
+
+
+                                    // Ajoute les horaires du musée
+                                    if(detailGet.result.opening_hours != null){
+                                        String openingMonday = detailGet.result.opening_hours.weekday_text[0];
+                                        String openingTuesday = detailGet.result.opening_hours.weekday_text[1];
+                                        String openingWednesday = detailGet.result.opening_hours.weekday_text[2];
+                                        String openingThursday = detailGet.result.opening_hours.weekday_text[3];
+                                        String openingFriday = detailGet.result.opening_hours.weekday_text[4];
+                                        String openingSaturday = detailGet.result.opening_hours.weekday_text[5];
+                                        String openingSunday = detailGet.result.opening_hours.weekday_text[6];
+
+                                        String openingDays = openingMonday + "\r\n" +
+                                                openingTuesday + "\r\n" +
+                                                openingWednesday + "\r\n" +
+                                                openingThursday + "\r\n" +
+                                                openingFriday + "\r\n" +
+                                                openingSaturday + "\r\n" +
+                                                openingSunday;
+                                        textViewOpeningHours.setText(openingDays);
+                                    } else {
+                                        textViewOpeningHours.setText("Il n'y a pas d'horaires d'ouverture de renseignés.");
+                                    }
+
+                                    // Ajoute les avis
+                                    if(detailGet.result.rating != null){
+                                        Float rating = detailGet.result.rating;
+
+                                        for(int i = 1; i < rating; i++){
+                                            ImageView image = new ImageView(DetailActivity.this);
+                                            image.setBackgroundResource(R.drawable.star_red);
+                                            linearLayoutRating.addView(image);
+                                            image.getLayoutParams().height = 100;
+                                            image.getLayoutParams().width = 100;
+                                        }
+                                    } else {
+                                        TextView text = new TextView(DetailActivity.this);
+                                        text.setText("Il n'y a pas d'avis");
+                                        linearLayoutRating.addView(text);
+                                    }
+
+                                    // Numero de telephone et site internet
+                                    String formattedPhone = detailGet.result.formatted_phone_number;
+                                    if(formattedPhone != null){
+                                        textViewPhone.setText(formattedPhone);
+                                    } else {
+                                        textViewPhone.setText("Il n'y a pas de téléphone");
+                                    }
+
+                                    String formattedLink = detailGet.result.website;
+                                    if(formattedLink != null){
+                                        String formattedLinkNohttp = formattedLink.replace("http://", "");
+                                        String formattedLinkNoSlash = formattedLinkNohttp.replace("/", "");
+
+                                        textViewLink.setText(formattedLinkNoSlash);
+                                    } else {
+                                        textViewLink.setText("Il n'y a pas de site internet");
+                                    }
+
                                 } else {
-                                    TextView text = new TextView(DetailActivity.this);
-                                    text.setText("Il n'y a pas d'avis");
-                                    linearLayoutRating.addView(text);
+
+                                    FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "erreur");
+
                                 }
-
-                                // numero de telephone et site internet
-                                String formattedPhone = detailGet.result.formatted_phone_number;
-                                if(formattedPhone != null){
-                                    Preference.setPhone(DetailActivity.this, formattedPhone);
-                                    textViewPhone.setText(formattedPhone);
-                                } else {
-                                    textViewPhone.setText("Il n'y a pas de téléphone");
-                                }
-
-                                String formattedLink = detailGet.result.website;
-                                if(formattedLink != null){
-                                    String formattedLinkNohttp = formattedLink.replace("http://", "");
-                                    String formattedLinkNoSlash = formattedLinkNohttp.replace("/", "");
-                                    Preference.setWebsite(DetailActivity.this, formattedLink);
-
-                                    textViewLink.setText(formattedLinkNoSlash);
-                                } else {
-                                    textViewLink.setText("Il n'y pas de site internet");
-                                }
-
-                            } else {
-
-                                FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "erreur");
 
                             }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
 
+                                FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Désole, une erreur est survenue");
+                            }
                         }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
+                );
 
-                            FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Désole, une erreur est survenue");
-                        }
-                    }
-            );
+                // Add the request to the RequestQueue.
+                queue.add(stringRequest);
+            }
 
-            // Add the request to the RequestQueue.
-            queue.add(stringRequest);
+
         } else {
             FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Vous devez être connecté");
         }
 
-
     }
-    
 
+    // Ajout des markers
     public void addMarker(Float lat, Float lng){
 
-        // Change and Resize the marker
+        // Change et resize le marker
         int height = 131;
         int width = 100;
         BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.splashscreen_marker_red);
         Bitmap b = bitmapdraw.getBitmap();
         Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
 
-        // Add a marker
+        // Ajoute le marker
         LatLng location = new LatLng(lat,lng);
         mapDetail.addMarker(new MarkerOptions().position(location)
                 .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
         mapDetail.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 17));
 
     }
-
 
 }

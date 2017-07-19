@@ -58,17 +58,14 @@ import static com.example.anaiskhaldi.museo.R.*;
 public class SearchLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
     // Déclaration des ids
-    private ImageView imageViewMenu;
     private EditText editTextSearchLocation;
 
 
     // Déclaration de la carte
     private GoogleMap mMap;
+
+    //List des markers
     private List<Marker> markerList;
-
-    // Déclaration variable de debbug
-    private static final String TAG = "SearchLocation";
-
 
 
     @Override
@@ -77,7 +74,6 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         setContentView(layout.activity_search_location);
 
         // Stockage des éléments du layout
-        // imageViewMenu = (ImageView) findViewById(R.id.imageViewMenu);
         editTextSearchLocation = (EditText) findViewById(R.id.editTextSearchLocation);
 
         markerList = new ArrayList<Marker>();
@@ -87,82 +83,69 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Log.d(TAG, " back " + Preference.getBack(SearchLocationActivity.this));
+        // Si on revient de l'écran DetailActivity , on garde les markers de la recherche
+        if (getIntent().getExtras() != null) {
+            Boolean item = getIntent().getExtras().getBoolean(Constant.BOOLEAN);
 
-        // Si on revient de l'écran DetailActivity , il nous garde les markeurs de la recherche
-        if(Preference.getBack(SearchLocationActivity.this)){
+            if (item) {
+                editTextSearchLocation.setText(Preference.getLocation(SearchLocationActivity.this));
 
-            editTextSearchLocation.setText(Preference.getLocation(SearchLocationActivity.this));
+                getMuseumLocation();
 
-            getMuseumLocation();
-            Preference.setBack(SearchLocationActivity.this, false);
+                // Si on clique sur Enter du clavier alors on recupere la location et on ferme le clavier
+                editTextSearchLocation.setOnKeyListener(new View.OnKeyListener() {
+                    @Override
+                    public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+                        if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) || (keyCode == KeyEvent.KEYCODE_ENTER)) {
 
-            editTextSearchLocation.setOnKeyListener(new View.OnKeyListener() {
-                @Override
-                public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
-                    if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) || (keyCode == KeyEvent.KEYCODE_ENTER)){
+                            if (editTextSearchLocation.getText().toString().length() > 0) {
 
-                        if(editTextSearchLocation.getText().toString().length() > 0) {
+                                hideKeyboard(view); // Fait disparaitre le clavier
+                                mMap.clear(); // clear la map
+                                getLocation(); // recupère les lat/lng du lieux saisis
 
-                            // Faire disparaitre le clavier
-                            hideKeyboard(view);
-                            mMap.clear();
-
-                            // Perform action on key enter press
-                            getLocation();
-
-                            getMuseumLocation();
-
-
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-            });
-
-            // Si on clique sur le bouton loupe alors on recupere la location et on ferme le clavier
-            editTextSearchLocation.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    final int DRAWABLE_LEFT = 0;
-                    final int DRAWABLE_TOP = 1;
-                    final int DRAWABLE_RIGHT = 2;
-                    final int DRAWABLE_BOTTOM = 3;
-                    if(event.getAction() == MotionEvent.ACTION_UP) {
-                        if(event.getRawX() <= (editTextSearchLocation.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width()) + 100) {
-                            if(editTextSearchLocation.getText().toString().length() > 0) {
-
-                                hideKeyboard(v);
-                                mMap.clear();
-                                getLocation();
-                                getMuseumLocation();
                             }
                             return true;
                         }
+                        return false;
                     }
-                    return false;
-                }
-            });
+                });
 
+                // Si on clique sur le bouton loupe alors on recupere la location et on ferme le clavier
+                editTextSearchLocation.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        final int DRAWABLE_LEFT = 0;
+                        final int DRAWABLE_TOP = 1;
+                        final int DRAWABLE_RIGHT = 2;
+                        final int DRAWABLE_BOTTOM = 3;
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            if (event.getRawX() <= (editTextSearchLocation.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width()) + 100) {
+                                if (editTextSearchLocation.getText().toString().length() > 0) {
+
+                                    mMap.clear();
+                                    hideKeyboard(v);
+                                    getLocation();
+
+                                }
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                });
+            }
         } else {
-
             editTextSearchLocation.setOnKeyListener(new View.OnKeyListener() {
                 @Override
                 public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
-                    if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) || (keyCode == KeyEvent.KEYCODE_ENTER)){
+                    if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) || (keyCode == KeyEvent.KEYCODE_ENTER)) {
 
-                        if(editTextSearchLocation.getText().toString().length() > 0) {
+                        if (editTextSearchLocation.getText().toString().length() > 0) {
 
-
-                            // Perform action on key enter press
-
-                            hideKeyboard(v);
+                            hideKeyboard(view);
                             mMap.clear();
-
                             getLocation();
-
-                            getMuseumLocation();
 
                         }
                         return true;
@@ -179,14 +162,13 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                     final int DRAWABLE_TOP = 1;
                     final int DRAWABLE_RIGHT = 2;
                     final int DRAWABLE_BOTTOM = 3;
-                    if(event.getAction() == MotionEvent.ACTION_UP) {
-                        if(event.getRawX() <= (editTextSearchLocation.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width()) + 100) {
-                            if(editTextSearchLocation.getText().toString().length() > 0) {
+                    if (event.getAction() == MotionEvent.ACTION_UP) {
+                        if (event.getRawX() <= (editTextSearchLocation.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width()) + 100) {
+                            if (editTextSearchLocation.getText().toString().length() > 0) {
 
                                 hideKeyboard(v);
                                 mMap.clear();
                                 getLocation();
-                                getMuseumLocation();
 
                             }
                             return true;
@@ -196,7 +178,6 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                 }
             });
         }
-
     }
 
 
@@ -221,11 +202,8 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
             public boolean onMarkerClick(Marker arg0) {
                 if(arg0 != null) {
 
-                    Preference.setMuseumPlaceId(SearchLocationActivity.this, arg0.getTitle());
-
-                    Preference.setPhoto(SearchLocationActivity.this, arg0.getSnippet());
-
                     Intent intentMarker = new Intent(SearchLocationActivity.this, DetailActivity.class);
+                    intentMarker.putExtra(Constant.PLACE_ID, arg0.getTitle());
 
                     startActivity(intentMarker);
                 }
@@ -240,7 +218,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
         // Stockage du contenu du textEdit dans une variable
         String location = editTextSearchLocation.getText().toString();
-        // Retirer les espaces pour les remplacer par des + pour la requete
+        // Retire les espaces pour les remplacer par des + pour la requete
         String locationNoSpace = location.replaceAll("\\s","+");
 
         Preference.setLocation(SearchLocationActivity.this, locationNoSpace);
@@ -250,6 +228,10 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
             // Vérification de la viabilité du réseau internet
             if(Network.isNetworkAvailable(SearchLocationActivity.this)){
+                final Dialog dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, "Chargement..."); // une pop up "chargement ...".
+
+                // Afficher un loader
+                dialog.show();
 
                 // Instantiate the RequestQueue.
                 RequestQueue queue = Volley.newRequestQueue(SearchLocationActivity.this);
@@ -260,8 +242,8 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
+                        dialog.dismiss();
 
-                        //Log.e(TAG, "onResponse :" + response);
                         Gson gson = new Gson();
                         LocationGet location = gson.fromJson(response, LocationGet.class);
 
@@ -270,6 +252,8 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                             // On stocke les informations de coordonnées dont places aura besoin dans les preferences
                             String coordinates = location.results.get(0).geometry.location.lat + "," + location.results.get(0).geometry.location.lng;
                             Preference.setSearchLocationCoordinate(SearchLocationActivity.this, coordinates);
+
+                            getMuseumLocation();
 
                         } else {
 
@@ -281,7 +265,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                 }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.e(TAG, "onErrorResponse :" + error);
+                        FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, getString(string.dialog_error));
                     }
                 });
 
@@ -296,7 +280,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
             }
         } else {
 
-            FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Le champ de recherche doit être renseigné");
+            FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, getString(string.editText_error));
 
         }
 
@@ -306,7 +290,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
 
         if (Network.isNetworkAvailable(SearchLocationActivity.this)) {
-            final Dialog dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, "Chargement des musées à proximité..."); // une pop up "chargement ...".
+            final Dialog dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, getString(string.chargement_musee)); // Pop up de chargement.
 
             // Afficher un loader
             dialog.show();
@@ -319,12 +303,12 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) { // 200
-                            // cacher la boîte de dialogue
+                            // cache le loader
                             dialog.cancel();
 
 
-                            Gson gson = new Gson(); //une instance d'un objet Gson (permet de décoder le fichier JSON qui est renvoyé par le serveur).
-                            final DataGet dataGet = gson.fromJson(response, DataGet.class); //nous lançons le décodage (La lecture du fichier JSON renvoyé par le web service )
+                            Gson gson = new Gson(); // Permet de décoder le fichier JSON qui est renvoyé par le serveur.
+                            final DataGet dataGet = gson.fromJson(response, DataGet.class); // Lecture du fichier JSON renvoyé par le web service
 
                             if(dataGet.status.equals("OK")) {
 
@@ -336,7 +320,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
                            } else {
 
-                               FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Désolé, une erreur est survenue");
+                               FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, getString(string.dialog_error));
                            }
 
                         }
@@ -345,12 +329,12 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                         @Override
                         public void onErrorResponse(VolleyError error) {
 
-                            // cacher la boîte de dialogue
+                            // cache le loader
                             dialog.dismiss();
 
                             String message = new String(error.networkResponse.data);
 
-                            FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Désolé, une erreur est survenue");
+                            FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, getString(string.dialog_error));
                         }
                     }
             );
@@ -362,7 +346,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
             dialog.dismiss();
         } else {
 
-            FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Vous devez être connecté");
+            FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, getString(string.dialog_internet_error));
         }
 
     }
@@ -371,7 +355,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
     public void addMarker(Float lat, Float lng, String placeId){
         Marker marker;
 
-        // Change and Resize the marker
+        // Change et resize le marker
         int height = 131;
         int width = 100;
         BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(drawable.splashscreen_marker_red);
@@ -379,7 +363,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
 
 
-        // Add a marker
+        // Ajoute le marker
         LatLng location = new LatLng(lat,lng);
 
         MarkerOptions info = new MarkerOptions()
@@ -391,7 +375,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         markerList.add(marker);
 
 
-        // GEt search coordinate to zoom the map on it
+        // Stocke les coordonnées et zoom
         String coordinateSearch = Preference.getSearchLocationCoordinate(SearchLocationActivity.this);
         String[] parts = coordinateSearch.split(",");
         String coorLat = parts[0];
@@ -405,7 +389,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
     }
 
-    // Method to hide the keyboard
+    // Cache le clavier
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(SearchLocationActivity.this.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);

@@ -43,7 +43,6 @@ import java.util.ArrayList;
 
 public class CircuitActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private static final String TAG = "Circuit Get";
     private GoogleMap mapCircuit;
     private TextView textViewStartAddress;
     private TextView textViewEndAddress;
@@ -51,9 +50,6 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
     private TextView textViewDuration;
     private LinearLayout linearLayoutInstruction;
     private ImageView backCircuit;
-
-
-    private final ArrayList<LatLng> lstLatLng = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,15 +72,13 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
         backCircuit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onBackPressed();
+                Intent intentBack = new Intent(CircuitActivity.this, DetailActivity.class);
+                intentBack.putExtra(Constant.PLACE_ID, getIntent().getExtras().getString(Constant.PLACE_ID));
+                startActivity(intentBack);
+
+                finish();
             }
         });
-    }
-
-    @Override
-    public void onBackPressed() {
-        startActivity(new Intent(CircuitActivity.this, DetailActivity.class));
-        finish();
     }
 
     /**
@@ -97,37 +91,28 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         mapCircuit = googleMap;
-
-        // Add a marker in Sydney and move the camera
-        //LatLng paris = new LatLng(48.856614, 2.3522219);
-        //mMap.addMarker(new MarkerOptions().position(paris).title("Marker in Paris"));
-        //mapDetail.moveCamera(CameraUpdateFactory.newLatLngZoom(paris, 12));
-
 
     }
 
+    //Récupère l'itinéraire
     private void getCircuit() {
 
         if (Network.isNetworkAvailable(CircuitActivity.this)) {
 
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(CircuitActivity.this);
-            String url = String.format(Constant.URL_GET_CIRCUIT, Preference.getSearchLocationCoordinate(CircuitActivity.this), Preference.getMuseumPlaceId(CircuitActivity.this)); //l'url du web service
-
-            Log.d(TAG, "url :" + url);
+            String url = String.format(Constant.URL_GET_CIRCUIT, Preference.getSearchLocationCoordinate(CircuitActivity.this), getIntent().getExtras().getString("place_id")); //l'url du web service
 
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) { // 200
 
-                            Gson gson = new Gson(); //une instance d'un objet Gson (permet de décoder le fichier JSON qui est renvoyé par le serveur).
-                            CircuitGet circuitGet = gson.fromJson(response, CircuitGet.class); //nous lançons le décodage (La lecture du fichier JSON renvoyé par le web service )
+                            Gson gson = new Gson(); // Permet de décoder le fichier JSON qui est renvoyé par le serveur.
+                            CircuitGet circuitGet = gson.fromJson(response, CircuitGet.class); //Lecture du fichier JSON renvoyé par le web service
 
                             if(circuitGet.status.equals("OK")) {
-
 
                             for(int i = 0; i < circuitGet.routes.size(); i++){
 
@@ -150,16 +135,15 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
                                     textViewDuration.setText(duration);
 
 
-                                    // Add Marker for start and end on the map
+                                    // Ajoute markers pour le debut et l'arrivé à destination
                                     Float start_lat = circuitGet.routes.get(i).legs.get(j).start_location.lat;
                                     Float start_lng = circuitGet.routes.get(i).legs.get(j).start_location.lng;
                                     Float end_lat = circuitGet.routes.get(i).legs.get(j).end_location.lat;
                                     Float end_lng = circuitGet.routes.get(i).legs.get(j).end_location.lng;
 
-
                                     addMarker(start_lat, start_lng, end_lat, end_lng);
 
-                                    // Recuperation des steps
+                                    // Récuperation des steps
                                     PolylineOptions options = new PolylineOptions().width(10).color(Color.rgb(0, 66, 131)).geodesic(true);
 
                                     Float first_lat = circuitGet.routes.get(i).legs.get(j).steps.get(0).start_location.lat;
@@ -188,31 +172,23 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
                                         linearLayoutInstruction.setBackgroundResource(R.drawable.border);
                                         linearLayoutInstruction.addView(instructionHTML);
 
-
                                     }
 
                                     mapCircuit.addPolyline(options);
-
                                 }
-
-
                             }
-
-
 
                             } else {
 
-                                FastDialog.showDialog(CircuitActivity.this, FastDialog.SIMPLE_DIALOG, "erreur");
-
+                                FastDialog.showDialog(CircuitActivity.this, FastDialog.SIMPLE_DIALOG, getString(R.string.dialog_error));
                             }
-
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
 
-                            FastDialog.showDialog(CircuitActivity.this, FastDialog.SIMPLE_DIALOG, "Probleme ");
+                            FastDialog.showDialog(CircuitActivity.this, FastDialog.SIMPLE_DIALOG, getString(R.string.dialog_error));
                         }
                     }
             );
@@ -220,7 +196,7 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
             // Add the request to the RequestQueue.
             queue.add(stringRequest);
         } else {
-            FastDialog.showDialog(CircuitActivity.this, FastDialog.SIMPLE_DIALOG, "Vous devez être connecté");
+            FastDialog.showDialog(CircuitActivity.this, FastDialog.SIMPLE_DIALOG, getString(R.string.dialog_internet_error));
         }
 
     }
@@ -228,7 +204,7 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
 
     public void addMarker(Float start_lat, Float start_lng, Float end_lat, Float end_lng){
 
-        // Change and Resize the marker
+        // Change et resize le marker
         int height = 131;
         int width = 100;
         BitmapDrawable bitmapdraw = (BitmapDrawable)getResources().getDrawable(R.drawable.splashscreen_marker_red);
@@ -240,7 +216,7 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
         Bitmap smallMarkerBlue = Bitmap.createScaledBitmap(bb, width, height, false);
 
 
-        // Add a marker
+        // Ajoute un marker
         LatLng start_location = new LatLng(start_lat,start_lng);
         mapCircuit.addMarker(new MarkerOptions().position(start_location)
                 .icon(BitmapDescriptorFactory.fromBitmap(smallMarkerBlue)));
@@ -250,10 +226,7 @@ public class CircuitActivity extends FragmentActivity implements OnMapReadyCallb
 
         mapCircuit.moveCamera(CameraUpdateFactory.newLatLngZoom(end_location, 16));
 
-
-
     }
-
 
 }
 

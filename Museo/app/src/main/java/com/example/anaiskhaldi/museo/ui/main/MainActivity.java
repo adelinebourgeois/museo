@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                Preference.setBack(MainActivity.this, false);
                 // Passage du MainActivity vers le MapActivity
                 Intent intentLocation = new Intent(MainActivity.this, SearchLocationActivity.class);
                 startActivity(intentLocation);
