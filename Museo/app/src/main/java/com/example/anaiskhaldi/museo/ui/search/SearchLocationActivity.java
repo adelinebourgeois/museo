@@ -30,6 +30,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.anaiskhaldi.museo.R;
+import com.example.anaiskhaldi.museo.models.detail.DetailPhoto;
 import com.example.anaiskhaldi.museo.models.museum.DataGet;
 import com.example.anaiskhaldi.museo.models.museum.MuseumGetGeometryData;
 import com.example.anaiskhaldi.museo.models.location.LocationGet;
@@ -48,10 +49,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
+import java.util.AbstractQueue;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.R.attr.id;
 import static com.example.anaiskhaldi.museo.R.*;
 
 public class SearchLocationActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -59,14 +60,16 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
     // Déclaration des ids
     private ImageView imageViewMenu;
     private EditText editTextSearchLocation;
-    private Dialog dialog;
 
 
     // Déclaration de la carte
     private GoogleMap mMap;
+    private List<Marker> markerList;
 
     // Déclaration variable de debbug
     private static final String TAG = "SearchLocation";
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,8 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         // Stockage des éléments du layout
         // imageViewMenu = (ImageView) findViewById(R.id.imageViewMenu);
         editTextSearchLocation = (EditText) findViewById(R.id.editTextSearchLocation);
+
+        markerList = new ArrayList<Marker>();
 
         // Affichage de la map après les changement demandés dans le onMapReady
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -99,13 +104,16 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
                         if(editTextSearchLocation.getText().toString().length() > 0) {
 
+                            // Faire disparaitre le clavier
+                            hideKeyboard(view);
+                            mMap.clear();
+
                             // Perform action on key enter press
                             getLocation();
 
                             getMuseumLocation();
 
-                            // Faire disparaitre le clavier
-                            hideKeyboard(view);
+
                         }
                         return true;
                     }
@@ -125,9 +133,10 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                         if(event.getRawX() <= (editTextSearchLocation.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width()) + 100) {
                             if(editTextSearchLocation.getText().toString().length() > 0) {
 
+                                hideKeyboard(v);
+                                mMap.clear();
                                 getLocation();
                                 getMuseumLocation();
-                                hideKeyboard(v);
                             }
                             return true;
                         }
@@ -145,13 +154,16 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
                         if(editTextSearchLocation.getText().toString().length() > 0) {
 
+
                             // Perform action on key enter press
+
+                            hideKeyboard(v);
+                            mMap.clear();
+
                             getLocation();
 
                             getMuseumLocation();
 
-                            // Faire disparaitre le clavier
-                            hideKeyboard(view);
                         }
                         return true;
                     }
@@ -171,9 +183,11 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                         if(event.getRawX() <= (editTextSearchLocation.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width()) + 100) {
                             if(editTextSearchLocation.getText().toString().length() > 0) {
 
+                                hideKeyboard(v);
+                                mMap.clear();
                                 getLocation();
                                 getMuseumLocation();
-                                hideKeyboard(v);
+
                             }
                             return true;
                         }
@@ -206,14 +220,13 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
             @Override
             public boolean onMarkerClick(Marker arg0) {
                 if(arg0 != null) {
-                    // Affiche un loader
-                    dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, "Chargement des infos..."); // une pop up "chargement ...".
-                    dialog.show();
 
                     Preference.setMuseumPlaceId(SearchLocationActivity.this, arg0.getTitle());
 
+                    Preference.setPhoto(SearchLocationActivity.this, arg0.getSnippet());
+
                     Intent intentMarker = new Intent(SearchLocationActivity.this, DetailActivity.class);
-                    dialog.dismiss();
+
                     startActivity(intentMarker);
                 }
                 return true;
@@ -291,10 +304,11 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
     public void getMuseumLocation() {
 
+
         if (Network.isNetworkAvailable(SearchLocationActivity.this)) {
+            final Dialog dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, "Chargement des musées à proximité..."); // une pop up "chargement ...".
 
             // Afficher un loader
-            dialog = FastDialog.showProgressDialog(SearchLocationActivity.this, "Chargement des musées à proximité..."); // une pop up "chargement ...".
             dialog.show();
 
             // Instantiate the RequestQueue.
@@ -305,6 +319,8 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) { // 200
+                            // cacher la boîte de dialogue
+                            dialog.cancel();
 
 
                             Gson gson = new Gson(); //une instance d'un objet Gson (permet de décoder le fichier JSON qui est renvoyé par le serveur).
@@ -316,7 +332,6 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
                                     MuseumGetGeometryData datas = dataGet.results.get(i).geometry;
                                     addMarker(datas.location.lat, datas.location.lng, dataGet.results.get(i).place_id);
-
                                 }
 
                            } else {
@@ -346,8 +361,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
             // cacher la boîte de dialogue
             dialog.dismiss();
         } else {
-            // cacher la boîte de dialogue
-            dialog.dismiss();
+
             FastDialog.showDialog(SearchLocationActivity.this, FastDialog.SIMPLE_DIALOG, "Vous devez être connecté");
         }
 
@@ -355,6 +369,7 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
 
 
     public void addMarker(Float lat, Float lng, String placeId){
+        Marker marker;
 
         // Change and Resize the marker
         int height = 131;
@@ -363,11 +378,18 @@ public class SearchLocationActivity extends FragmentActivity implements OnMapRea
         Bitmap b = bitmapdraw.getBitmap();
         Bitmap smallMarker = Bitmap.createScaledBitmap(b, width, height, false);
 
+
         // Add a marker
         LatLng location = new LatLng(lat,lng);
-        mMap.addMarker(new MarkerOptions().position(location)
+
+        MarkerOptions info = new MarkerOptions()
+                .position(location)
                 .title(placeId)
-                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker)));
+                .icon(BitmapDescriptorFactory.fromBitmap(smallMarker));
+
+        marker = mMap.addMarker(info);
+        markerList.add(marker);
+
 
         // GEt search coordinate to zoom the map on it
         String coordinateSearch = Preference.getSearchLocationCoordinate(SearchLocationActivity.this);

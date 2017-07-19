@@ -1,6 +1,7 @@
 package com.example.anaiskhaldi.museo.ui.detail;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,8 +16,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -31,6 +34,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.anaiskhaldi.museo.R;
 import com.example.anaiskhaldi.museo.models.detail.DetailGet;
+import com.example.anaiskhaldi.museo.models.detail.DetailPhoto;
 import com.example.anaiskhaldi.museo.models.museum.DataGet;
 import com.example.anaiskhaldi.museo.models.museum.MuseumGetGeometryData;
 import com.example.anaiskhaldi.museo.ui.circuit.CircuitActivity;
@@ -48,11 +52,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.anaiskhaldi.museo.R.id.galleryPhoto;
 
 public class DetailActivity extends FragmentActivity implements OnMapReadyCallback, View.OnClickListener {
 
@@ -62,12 +70,19 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
     private TextView textViewAddress;
     private TextView textViewOpeningHours;
     private LinearLayout linearLayoutRating;
+    private LinearLayout linearLayoutPhoto;
+	private Gallery galleryPhoto;
+	private ImageView imageViewPhoto;
     private TextView textViewPhone;
     private TextView textViewLink;
+
     private ImageView back;
 
     private FloatingActionButton fab;
 
+    private Dialog dialog;
+    private ArrayList<DetailPhoto> photoList = new ArrayList<>();
+    private GalleryAdapter galleryImageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +97,11 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         back = (ImageView) findViewById(R.id.back);
 
         linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
+        linearLayoutPhoto = (LinearLayout) findViewById(R.id.linearLayoutPhoto);
+        galleryPhoto = (Gallery) findViewById(R.id.galleryPhoto);
+
+        galleryImageAdapter= new GalleryAdapter(DetailActivity.this, R.layout.item_gallery, photoList);
+        galleryPhoto.setAdapter(galleryImageAdapter);
 
         fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -207,25 +227,40 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
     }
 
+
     public void getMuseumDetail() {
 
         if (Network.isNetworkAvailable(DetailActivity.this)) {
+
+            // Afficher un loader
+            dialog = FastDialog.showProgressDialog(DetailActivity.this, "Chargement des infos..."); // une pop up "chargement ...".
+            dialog.show();
 
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(DetailActivity.this);
             String url = String.format(Constant.URL_GET_MUSEUM_DETAIL, Preference.getMuseumPlaceId(DetailActivity.this)); //l'url du web service
 
-            Log.e(TAG, "url: "+url);
-
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) { // 200
+                            // cacher la boîte de dialogue
+                            dialog.dismiss();
 
                             Gson gson = new Gson(); //une instance d'un objet Gson (permet de décoder le fichier JSON qui est renvoyé par le serveur).
                             DetailGet detailGet = gson.fromJson(response, DetailGet.class); //nous lançons le décodage (La lecture du fichier JSON renvoyé par le web service )
 
                             if(detailGet.status.equals("OK")) {
+
+                                if(detailGet.result.photos != null) {
+                                    photoList.clear();
+                                    photoList.addAll(detailGet.result.photos);
+                                    galleryImageAdapter.notifyDataSetChanged();
+                                } else {
+                                    TextView text = new TextView(DetailActivity.this);
+                                    text.setText("Il n'y a pas de photo");
+                                    linearLayoutPhoto.addView(text);
+                                }
 
                                 // Set text for museum name
                                 textViewMuseumName.setText(detailGet.result.name);
@@ -315,7 +350,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
                         @Override
                         public void onErrorResponse(VolleyError error) {
 
-                            FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Probleme ");
+                            FastDialog.showDialog(DetailActivity.this, FastDialog.SIMPLE_DIALOG, "Désole, une erreur est survenue");
                         }
                     }
             );
@@ -328,7 +363,7 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
 
     }
-
+    
 
     public void addMarker(Float lat, Float lng){
 

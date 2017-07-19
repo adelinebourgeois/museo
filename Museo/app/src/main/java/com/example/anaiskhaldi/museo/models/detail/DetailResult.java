@@ -1,5 +1,7 @@
 package com.example.anaiskhaldi.museo.models.detail;
 
+import android.media.Image;
+
 import java.util.List;
 
 /**
@@ -16,9 +18,24 @@ public class DetailResult {
     public Float rating;
     public List<DetailReviews> reviews;
     public String website;
+    public List<DetailPhoto> photos;
 
+    @Override
+    public String toString() {
+        return "DetailResult{" +
+                "formatted_address='" + formatted_address + '\'' +
+                ", formatted_phone_number='" + formatted_phone_number + '\'' +
+                ", geometry=" + geometry +
+                ", name='" + name + '\'' +
+                ", opening_hours=" + opening_hours +
+                ", rating=" + rating +
+                ", reviews=" + reviews +
+                ", website='" + website + '\'' +
+                ", photos=" + photos +
+                '}';
+    }
 
-        /*
+    /*
 
     "result": {
         "address_components": [

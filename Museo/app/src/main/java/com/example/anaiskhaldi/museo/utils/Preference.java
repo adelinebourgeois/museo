@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import com.example.anaiskhaldi.museo.ui.detail.DetailActivity;
+
 
 public class Preference {
 
@@ -14,6 +16,7 @@ public class Preference {
     private static final String PREF_MUSEUM_PLACE_ID = "name";
     private static final String PREF_MUSEUM_WEBSITE = "website";
     private static final String PREF_MUSEUM_PHONE = "phone";
+    private static final String PREF_MUSEUM_PHOTO = "photo";
 
     private static final String PREF_LOCATION = "location";
     private static final String PREF_BACK = "false";
@@ -83,4 +86,10 @@ public class Preference {
         get(context).edit().putString(PREF_MUSEUM_PHONE, phone).commit();
     }
 
+    public static String getPhoto(Context context){
+        return get(context).getString(PREF_MUSEUM_PHOTO, null);
+    }
+    public static void setPhoto(Context context, String photo){
+        get(context).edit().putString(PREF_MUSEUM_PHOTO, photo).commit();
+    }
 }

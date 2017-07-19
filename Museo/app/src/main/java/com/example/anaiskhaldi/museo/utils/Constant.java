@@ -19,5 +19,6 @@ public class Constant {
     public static final String URL_GET_MUSEUM_DETAIL = "https://maps.googleapis.com/maps/api/place/details/json?placeid=%s&language=fr&key=" + API_KEY_PLACES;
     public static final String URL_GET_CIRCUIT = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=place_id:%s&mode=walking&language=fr&key=" + API_KEY_DIRECTION;
 
+    public static final String URL_GET_MUSEUM_PHOTO = "https://maps.googleapis.com/maps/api/place/photo?photoreference=%s&maxwidth=600&maxheight=700&key=" + API_KEY_PLACES;
 
 }
