@@ -15,9 +15,27 @@ public class Preference {
     private static final String PREF_MUSEUM_WEBSITE = "website";
     private static final String PREF_MUSEUM_PHONE = "phone";
 
+    private static final String PREF_LOCATION = "location";
+    private static final String PREF_BACK = "false";
 
     private static SharedPreferences get(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    // BOOLEAN
+    public static String getLocation(Context context) {
+        return get(context).getString(PREF_LOCATION, null);
+    }
+    public static void setLocation(Context context, String location) {
+        get(context).edit().putString(PREF_LOCATION, location).commit();
+    }
+
+    // BOOLEAN
+    public static Boolean getBack(Context context) {
+        return get(context).getBoolean(PREF_BACK, false);
+    }
+    public static void setBack(Context context, Boolean back) {
+        get(context).edit().putBoolean(PREF_BACK, back).commit();
     }
 
     // Getter and setter for the searched location

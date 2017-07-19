@@ -27,24 +27,24 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary">
+        android:layout_height="wrap_content"
+        android:background="@color/colorDarkBlue"
+        android:padding="5dp">
 
         <!-- Image Marker / Logo -->
         <ImageView
             android:src="@drawable/splashscreen_marker_red"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginRight="10dp"
-            android:layout_gravity="top" />
+            android:layout_marginRight="5dp"
+            android:layout_gravity="center_vertical|left" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/main_title"
             android:textSize="30sp"
             android:textStyle="bold"
-            android:layout_gravity="top"
+            android:layout_gravity="center_vertical|left"
             android:textColor="@color/colorWhite"/>
 
     </android.support.v7.widget.Toolbar>
@@ -66,6 +66,6 @@
         android:imeOptions="actionDone"
         android:maxLines="1"
         android:textColor="@color/colorBlack"
-        android:background="@color/colorWhite"/>
+        android:background="@drawable/border"/>
 
 </android.support.design.widget.CoordinatorLayout>

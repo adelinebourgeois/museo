@@ -7,6 +7,7 @@ import android.os.Bundle;
 import com.example.anaiskhaldi.museo.R;
 import com.example.anaiskhaldi.museo.ui.search.SearchLocationActivity;
 import com.example.anaiskhaldi.museo.utils.Constant;
+import com.example.anaiskhaldi.museo.utils.Preference;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
 
+                Preference.setBack(MainActivity.this, false);
                 // Passage du MainActivity vers le MapActivity
                 Intent intentLocation = new Intent(MainActivity.this, SearchLocationActivity.class);
                 startActivity(intentLocation);

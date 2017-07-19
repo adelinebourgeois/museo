@@ -8,6 +8,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +33,7 @@ import com.example.anaiskhaldi.museo.R;
 import com.example.anaiskhaldi.museo.models.detail.DetailGet;
 import com.example.anaiskhaldi.museo.models.museum.DataGet;
 import com.example.anaiskhaldi.museo.models.museum.MuseumGetGeometryData;
+import com.example.anaiskhaldi.museo.ui.circuit.CircuitActivity;
 import com.example.anaiskhaldi.museo.ui.search.SearchLocationActivity;
 import com.example.anaiskhaldi.museo.utils.Constant;
 import com.example.anaiskhaldi.museo.utils.FastDialog;
@@ -62,6 +64,10 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
     private LinearLayout linearLayoutRating;
     private TextView textViewPhone;
     private TextView textViewLink;
+    private ImageView back;
+
+    private FloatingActionButton fab;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +79,11 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
         textViewOpeningHours = (TextView) findViewById(R.id.textViewOpeningHours);
         textViewPhone = (TextView) findViewById(R.id.textViewPhone);
         textViewLink = (TextView) findViewById(R.id.textViewLink);
+        back = (ImageView) findViewById(R.id.back);
 
         linearLayoutRating = (LinearLayout) findViewById(R.id.linearLayoutRating);
+
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapDetail);
         mapFragment.getMapAsync(this);
@@ -87,6 +96,32 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
         getMuseumDetail();
 
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intentCircuit = new Intent(DetailActivity.this, CircuitActivity.class);
+                startActivity(intentCircuit);
+            }
+        });
+
+
+        // Retour en arrière
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Preference.setBack(DetailActivity.this, true);
+                onBackPressed();
+            }
+        });
+
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(DetailActivity.this, SearchLocationActivity.class));
+        finish();
     }
 
     @Override
@@ -174,8 +209,6 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
     public void getMuseumDetail() {
 
-
-
         if (Network.isNetworkAvailable(DetailActivity.this)) {
 
             // Instantiate the RequestQueue.
@@ -203,8 +236,13 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
 
                                 // Set text for museum address
                                 String formattedAdress = detailGet.result.formatted_address;
-                                String address = formattedAdress.replace(", ", "\r\n");
-                                textViewAddress.setText(address);
+                                if(formattedAdress != null){
+                                    String address = formattedAdress.replace(", ", "\r\n");
+                                    textViewAddress.setText(address);
+                                } else {
+                                    textViewAddress.setText("Il n'y a pas d'adresse de renseigné");
+                                }
+
 
                                 // Set text for museum opening hours
                                 if(detailGet.result.opening_hours != null){
@@ -249,13 +287,18 @@ public class DetailActivity extends FragmentActivity implements OnMapReadyCallba
                                 String formattedPhone = detailGet.result.formatted_phone_number;
                                 if(formattedPhone != null){
                                     Preference.setPhone(DetailActivity.this, formattedPhone);
+                                    textViewPhone.setText(formattedPhone);
                                 } else {
                                     textViewPhone.setText("Il n'y a pas de téléphone");
                                 }
 
                                 String formattedLink = detailGet.result.website;
                                 if(formattedLink != null){
+                                    String formattedLinkNohttp = formattedLink.replace("http://", "");
+                                    String formattedLinkNoSlash = formattedLinkNohttp.replace("/", "");
                                     Preference.setWebsite(DetailActivity.this, formattedLink);
+
+                                    textViewLink.setText(formattedLinkNoSlash);
                                 } else {
                                     textViewLink.setText("Il n'y pas de site internet");
                                 }

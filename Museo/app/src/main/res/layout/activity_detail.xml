@@ -7,26 +7,74 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.anaiskhaldi.museo.ui.detail.DetailActivity">
-    <fragment
-        android:id="@+id/mapDetail"
+
+    <android.support.design.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:layout_alignParentRight="true"
-        class="com.google.android.gms.maps.SupportMapFragment"/>
-    <TextView
-        android:id="@+id/textViewMuseumName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Name"
-        android:textColor="@color/colorWhite"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        android:paddingTop="20dp"
-        android:paddingRight="40dp"
-        android:paddingBottom="20dp"
-        android:paddingLeft="40dp"
-        android:background="@color/colorDarkBlue"
-        />
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.6">
+
+                <fragment
+                    android:id="@+id/mapDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="250dp"
+                    android:layout_alignParentRight="true"
+                    class="com.google.android.gms.maps.SupportMapFragment" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.4">
+                <TextView
+                    android:id="@+id/textViewMuseumName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Name"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:paddingTop="30dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="20dp"
+                    android:paddingLeft="30dp"
+                    android:background="@color/colorDarkBlue" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:src="@drawable/icon_back"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginLeft="16dp"
+            android:clickable="true"
+            android:src="@drawable/icon_itineraire_red"
+            app:layout_anchor="@id/mapDetail"
+            android:layout_marginRight="30dp"
+            app:layout_anchorGravity="bottom|right|end"
+            android:scaleType="center" />
+    </android.support.design.widget.CoordinatorLayout>
+
     <ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
@@ -64,7 +112,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:text="Adresse"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="15dp"
                 android:textSize="18sp"
                 android:textColor="@color/colorBlack"/>
 
@@ -95,17 +143,18 @@
                 tools:text="Ouverture"
                 android:textColor="@color/colorBlack"
                 android:textSize="18sp"
-                android:layout_marginBottom="5dp"/>
+                android:layout_marginBottom="15dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp">
                 <ImageView
                     android:layout_gravity="center_vertical"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginRight="15dp"
                     android:src="@drawable/icon_phone"/>
                 <TextView
                     android:id="@+id/textViewPhone"
@@ -121,12 +170,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp">
                 <ImageView
                     android:layout_gravity="center_vertical"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_marginRight="5dp"
+                    android:layout_marginRight="15dp"
                     android:src="@drawable/icon_link"/>
                 <TextView
                     android:id="@+id/textViewLink"
@@ -144,7 +194,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                android:layout_gravity="center">
+                android:layout_gravity="center"
+                android:background="@drawable/border_red"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -154,8 +209,8 @@
                     android:textSize="23sp"
                     android:layout_marginRight="15dp"/>
             </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
 
 
 </LinearLayout>
